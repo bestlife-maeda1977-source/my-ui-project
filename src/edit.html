@@ -328,7 +328,25 @@
 
           confirmDeleteBtn.addEventListener("click", () => {
             console.log(`ID: ${item.id} のデータを削除しました`);
-            window.location.href = "/src/dashboard.html";
+
+            // 1. モーダルを閉じる
+            deleteModal.classList.add("hidden");
+
+            // 2. メインコンテンツを隠して、ローディング（完了）画面を表示
+            document.getElementById("edit-content").classList.add("hidden");
+            const loadingState = document.getElementById("loading-state");
+            loadingState.classList.remove("hidden");
+            loadingState.innerHTML = `
+    <div class="flex flex-col items-center justify-center space-y-3">
+      <span class="text-green-600 font-bold text-lg">データの削除が完了しました</span>
+      <p class="text-sm text-gray-500">ダッシュボードに移動します...</p>
+    </div>
+  `;
+
+            // 3. 3.6秒後にダッシュボードへ遷移
+            setTimeout(() => {
+              window.location.href = "/src/dashboard.html";
+            }, 3600);
           });
         } else {
           // データが見つからない場合

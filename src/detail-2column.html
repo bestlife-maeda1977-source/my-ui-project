@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="ja" class="h-full bg-gray-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>データ比較詳細 | データチェック管理</title>
+    <link rel="stylesheet" href="/src/assets/styles/style.css" />
+  </head>
+  <body class="h-full">
+    <div class="min-h-full">
+      <nav class="bg-indigo-600 shadow-sm">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="flex h-16 justify-between items-center">
+            <div class="flex items-center space-x-4">
+              <a
+                href="/src/dashboard.html"
+                class="text-indigo-100 hover:text-white transition flex items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                戻る
+              </a>
+            </div>
+            <div class="flex items-center space-x-4">
+              <span class="text-indigo-100 text-sm">管理者 太郎 様</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div
+        class="sticky top-0 z-40 bg-white border-b border-gray-200 lg:hidden"
+      >
+        <nav class="flex -mb-px" aria-label="Tabs">
+          <button
+            id="tab-btn-a"
+            class="w-1/2 border-b-2 border-indigo-600 py-4 px-1 text-center text-sm font-medium text-indigo-600"
+          >
+            データA (基準)
+          </button>
+          <button
+            id="tab-btn-b"
+            class="w-1/2 border-b-2 border-transparent py-4 px-1 text-center text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+          >
+            データB (検証)
+          </button>
+        </nav>
+      </div>
+
+      <main class="py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="md:flex md:items-center md:justify-between mb-8">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-3">
+                <h1
+                  id="display-id-title"
+                  class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl"
+                >
+                  データ詳細: --
+                </h1>
+                <div id="status-badge-container"></div>
+              </div>
+              <p id="display-name-sub" class="mt-1 text-sm text-gray-500">--</p>
+            </div>
+
+            <div class="mt-4 flex md:ml-4 md:mt-0 space-x-3">
+              <a
+                href="/src/edit.html"
+                class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              >
+                編集
+              </a>
+              <button
+                type="button"
+                id="btn-status-update"
+                class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+              >
+                ステータス更新
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div id="panel-data-a" class="space-y-6 block">
+              <section
+                class="overflow-hidden bg-white shadow sm:rounded-lg border border-gray-200"
+              >
+                <div
+                  class="px-4 py-4 sm:px-6 bg-slate-50 border-b border-gray-200 flex items-center"
+                >
+                  <span
+                    class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-600 mr-2"
+                  ></span>
+                  <h3 class="text-base font-bold text-gray-900">
+                    データA (基準データ)
+                  </h3>
+                </div>
+                <div class="border-t border-gray-100">
+                  <dl class="divide-y divide-gray-100">
+                    <div
+                      class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                    >
+                      <dt class="text-sm font-medium text-gray-500">
+                        データ名
+                      </dt>
+                      <dd
+                        id="display-name-a"
+                        class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
+                      >
+                        --
+                      </dd>
+                    </div>
+                    <div
+                      class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                    >
+                      <dt class="text-sm font-medium text-gray-500">担当者</dt>
+                      <dd
+                        id="display-assignee-a"
+                        class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
+                      >
+                        --
+                      </dd>
+                    </div>
+                    <div
+                      class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                    >
+                      <dt class="text-sm font-medium text-gray-500">
+                        発生日時 / 最終更新
+                      </dt>
+                      <dd
+                        id="display-date-a"
+                        class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
+                      >
+                        --
+                      </dd>
+                    </div>
+                    <div
+                      class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                    >
+                      <dt class="text-sm font-medium text-gray-500">
+                        詳細説明
+                      </dt>
+                      <dd
+                        id="display-description-a"
+                        class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0 text-pretty break-words"
+                      >
+                        --
+                      </dd>
+                    </div>
+                    <div class="px-4 py-4 sm:px-6">
+                      <dt class="text-sm font-medium text-gray-500 mb-2">
+                        生データ / ログ
+                      </dt>
+                      <dd class="mt-1 text-sm leading-6 text-gray-700">
+                        <pre
+                          id="display-raw-log-a"
+                          class="overflow-auto rounded-md bg-gray-900 p-4 text-xs text-gray-300 font-mono"
+                        >
+--</pre
+                        >
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </section>
+            </div>
+
+            <div id="panel-data-b" class="space-y-6 hidden lg:block">
+              <section
+                class="overflow-hidden bg-white shadow sm:rounded-lg border border-gray-200"
+              >
+                <div
+                  class="px-4 py-4 sm:px-6 bg-slate-50 border-b border-gray-200 flex items-center"
+                >
+                  <span
+                    class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"
+                  ></span>
+                  <h3 class="text-base font-bold text-gray-900">
+                    データB (検証データ)
+                  </h3>
+                </div>
+                <div class="border-t border-gray-100">
+                  <dl class="divide-y divide-gray-100">
+                    <div
+                      class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                    >
+                      <dt class="text-sm font-medium text-gray-500">
+                        データ名
+                      </dt>
+                      <dd
+                        id="display-name-b"
+                        class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
+                      >
+                        --
+                      </dd>
+                    </div>
+                    <div
+                      class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                    >
+                      <dt class="text-sm font-medium text-gray-500">担当者</dt>
+                      <dd
+                        id="display-assignee-b"
+                        class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
+                      >
+                        --
+                      </dd>
+                    </div>
+                    <div
+                      class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                    >
+                      <dt class="text-sm font-medium text-gray-500">
+                        発生日時 / 最終更新
+                      </dt>
+                      <dd
+                        id="display-date-b"
+                        class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
+                      >
+                        --
+                      </dd>
+                    </div>
+                    <div
+                      class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                    >
+                      <dt class="text-sm font-medium text-gray-500">
+                        詳細説明
+                      </dt>
+                      <dd
+                        id="display-description-b"
+                        class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0 text-pretty break-words"
+                      >
+                        --
+                      </dd>
+                    </div>
+                    <div class="px-4 py-4 sm:px-6">
+                      <dt class="text-sm font-medium text-gray-500 mb-2">
+                        生データ / ログ
+                      </dt>
+                      <dd class="mt-1 text-sm leading-6 text-gray-700">
+                        <pre
+                          id="display-raw-log-b"
+                          class="overflow-auto rounded-md bg-gray-900 p-4 text-xs text-gray-300 font-mono"
+                        >
+--</pre
+                        >
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module">
+      import { mockData, STATUS_CONFIG } from "/src/assets/scripts/js/data.js";
+
+      // --- 1. データ取得と初期設定 ---
+      const params = new URLSearchParams(window.location.search);
+      const targetId = params.get("id");
+      const storedData =
+        JSON.parse(localStorage.getItem("manage_mock_data")) || mockData;
+      const item = storedData.find((d) => String(d.id) === targetId);
+
+      // 【比較デモ用】データBを仮作成（実際の運用の際は、適切な比較対象ロジックに変更してください）
+      const itemB = item
+        ? {
+            ...item,
+            name: item.name + "（更新版）",
+            assignee: item.assignee || "未定",
+            description:
+              (item.description || "") +
+              "\n\n--- [データBの検証用追加ログ] 内容確認に問題ありません。",
+          }
+        : null;
+
+      // UI要素の取得
+      const statusUpdateBtn = document.getElementById("btn-status-update");
+      const dateDisplay = document.getElementById("display-date-a");
+
+      // --- 2. 共通関数群 ---
+
+      // トースト通知
+      function showToast(message, type = "success") {
+        const existingToast = document.querySelector(".custom-toast");
+        if (existingToast) existingToast.remove();
+
+        const toast = document.createElement("div");
+        const bgColor = type === "success" ? "bg-green-600" : "bg-red-600";
+        toast.className = `custom-toast fixed top-5 right-5 ${bgColor} text-white px-6 py-3 rounded-lg shadow-xl z-[100] transition-opacity duration-300 flex items-center space-x-2`;
+        toast.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          <span class="font-medium">${message}</span>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      // ステータスUI（バッジとボタン）の更新
+      function updateStatusUI(statusKey) {
+        const config = STATUS_CONFIG[statusKey] || {
+          text: statusKey,
+          class: "bg-gray-100 text-gray-800",
+        };
+        const badgeContainer = document.getElementById(
+          "status-badge-container",
+        );
+        if (badgeContainer) {
+          badgeContainer.innerHTML = `
+            <span class="inline-flex items-center rounded-full px-3 py-0.5 text-sm font-medium ${config.class} transition-all duration-300">
+              ${config.text}
+            </span>
+          `;
+        }
+
+        if (statusUpdateBtn) {
+          if (statusKey === "completed") {
+            statusUpdateBtn.textContent = "未完了に戻す";
+            statusUpdateBtn.className =
+              "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50";
+          } else {
+            statusUpdateBtn.textContent = "完了にする";
+            statusUpdateBtn.className =
+              "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500";
+          }
+        }
+      }
+
+      // JSONログの更新
+      function updateRawLog(dataA, dataB) {
+        const rawLogContainerA = document.getElementById("display-raw-log-a");
+        if (rawLogContainerA)
+          rawLogContainerA.textContent = JSON.stringify(dataA, null, 2);
+
+        const rawLogContainerB = document.getElementById("display-raw-log-b");
+        if (rawLogContainerB)
+          rawLogContainerB.textContent = JSON.stringify(dataB, null, 2);
+      }
+
+      // --- 3. メイン処理 ---
+      if (!item) {
+        const mainElement = document.querySelector("main");
+        mainElement.innerHTML = `
+          <div class="text-center py-20">
+            <h2 class="text-xl font-semibold text-gray-900">データが見つかりません</h2>
+            <p class="mt-2 text-gray-500">指定されたID（${targetId || "不明"}）のデータは存在しません。</p>
+            <a href="/src/dashboard.html" class="mt-6 inline-flex text-indigo-600 hover:text-indigo-500">ダッシュボードへ戻る</a>
+          </div>
+        `;
+      } else {
+        // 【データA】の反映
+        document.getElementById("display-id-title").textContent =
+          `データ詳細: #${item.id}`;
+        document.getElementById("display-name-sub").textContent = item.name;
+        document.getElementById("display-name-a").textContent = item.name;
+        document.getElementById("display-assignee-a").textContent =
+          item.assignee;
+        dateDisplay.textContent = item.updatedAt;
+
+        const descContainerA = document.getElementById("display-description-a");
+        if (item.description) {
+          descContainerA.textContent = item.description;
+        } else {
+          descContainerA.textContent = "（説明はありません）";
+          descContainerA.classList.add("text-gray-400");
+        }
+
+        // 【データB】の反映
+        document.getElementById("display-name-b").textContent = itemB.name;
+        document.getElementById("display-assignee-b").textContent =
+          itemB.assignee;
+        document.getElementById("display-date-b").textContent = itemB.updatedAt;
+        document.getElementById("display-description-b").textContent =
+          itemB.description;
+
+        // 編集リンクの更新
+        const editLink = document.querySelector('a[href^="/src/edit.html"]');
+        if (editLink) editLink.href = `/src/edit.html?id=${item.id}`;
+
+        // 初期表示の反映
+        updateStatusUI(item.status);
+        updateRawLog(item, itemB);
+
+        // --- スマートフォン向けタブ切り替えの制御ロジック ---
+        const tabBtnA = document.getElementById("tab-btn-a");
+        const tabBtnB = document.getElementById("tab-btn-b");
+        const panelA = document.getElementById("panel-data-a");
+        const panelB = document.getElementById("panel-data-b");
+
+        function switchTab(activeTab, inactiveTab, showPanel, hidePanel) {
+          // タブのアクティブ装飾の切り替え
+          activeTab.classList.remove(
+            "text-gray-500",
+            "border-transparent",
+            "hover:border-gray-300",
+            "hover:text-gray-700",
+          );
+          activeTab.classList.add("text-indigo-600", "border-indigo-600");
+
+          inactiveTab.classList.remove("text-indigo-600", "border-indigo-600");
+          inactiveTab.classList.add(
+            "text-gray-500",
+            "border-transparent",
+            "hover:border-gray-300",
+            "hover:text-gray-700",
+          );
+
+          // パネルの表示切り替え（スマホ向けに block/hidden を切り替えるが、PC用に `lg:block` は維持）
+          showPanel.classList.remove("hidden");
+          showPanel.classList.add("block");
+
+          hidePanel.classList.remove("block", "lg:block");
+          hidePanel.classList.add("hidden");
+        }
+
+        tabBtnA.addEventListener("click", () => {
+          switchTab(tabBtnA, tabBtnB, panelA, panelB);
+          panelB.classList.add("lg:block"); // PCでの並びを崩さないための保険
+        });
+
+        tabBtnB.addEventListener("click", () => {
+          switchTab(tabBtnB, tabBtnA, panelB, panelA);
+          panelA.classList.add("lg:block"); // PCでの並びを崩さないための保険
+        });
+
+        // ステータス更新イベント
+        if (statusUpdateBtn) {
+          statusUpdateBtn.addEventListener("click", () => {
+            const nextStatus =
+              item.status === "completed" ? "pending" : "completed";
+            const nowTime = new Date().toLocaleString("ja-JP");
+
+            // 1. LocalStorage保存
+            const updatedAllData = storedData.map((d) =>
+              String(d.id) === targetId
+                ? { ...d, status: nextStatus, updatedAt: nowTime }
+                : d,
+            );
+            localStorage.setItem(
+              "manage_mock_data",
+              JSON.stringify(updatedAllData),
+            );
+
+            // 2. メモリ内のオブジェクト更新
+            item.status = nextStatus;
+            item.updatedAt = nowTime;
+            itemB.status = nextStatus; // 比較対象側も同期させる
+            itemB.updatedAt = nowTime;
+
+            // 3. UI反映
+            updateStatusUI(nextStatus);
+            dateDisplay.textContent = nowTime;
+            document.getElementById("display-date-b").textContent = nowTime;
+            updateRawLog(item, itemB);
+
+            const statusText = nextStatus === "completed" ? "完了" : "未完了";
+            showToast(`ステータスを「${statusText}」に更新しました`);
+          });
+        }
+
+        // URLパラメータ "updated=true" のチェック
+        if (params.get("updated") === "true") {
+          showToast("データを更新しました");
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname + `?id=${item.id}`,
+          );
+        }
+      }
+    </script>
+  </body>
+</html>
