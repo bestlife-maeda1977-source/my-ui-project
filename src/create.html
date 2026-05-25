@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ja" class="h-full bg-slate-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>新規タスク作成 - Task Manager</title>
+    <style>
+      /* 1. 読み込み完了前のメインコンテンツを隠す */
+      #main-content {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease;
+      }
+      /* 2. 完了クラスが付与された時の挙動 */
+      .is-loaded #main-content {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+      .is-loaded #loading-overlay {
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      /* 3. ローディング画面の固定スタイル */
+      #loading-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: #f8fafc !important; /* bg-slate-50 */
+        z-index: 9999 !important;
+        transition: opacity 0.5s ease;
+      }
+      .fallback-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #4f46e5; /* indigo-600 */
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="h-full text-slate-900 antialiased">
+    <!-- ローディングオーバーレイ -->
+    <div id="loading-overlay" aria-label="読み込み中">
+      <div class="flex flex-col items-center">
+        <div class="fallback-spinner"></div>
+        <p class="mt-4 text-sm font-medium text-slate-600 tracking-wider">
+          読み込み中...
+        </p>
+      </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div
+      id="main-content"
+      class="mx-auto max-w-2xl px-4 py-12"
+      aria-hidden="true"
+    >
+      <!-- ヘッダー -->
+      <div class="mb-8 flex items-center justify-between">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-800">
+          新規タスク追加
+        </h1>
+        <a
+          href="dashboard.html"
+          class="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+        >
+          &larr; ダッシュボードに戻る
+        </a>
+      </div>
+
+      <!-- フォームカード -->
+      <div
+        class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200"
+      >
+        <form id="createForm" class="p-8">
+          <div class="space-y-6">
+            <!-- タスク名 -->
+            <div>
+              <label
+                for="name"
+                class="block text-sm font-semibold text-slate-700"
+                >タスク名</label
+              >
+              <input
+                type="text"
+                id="name"
+                required
+                class="mt-2 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="例: デザインシステムの構築"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <!-- ステータス -->
+              <div>
+                <label
+                  for="status"
+                  class="block text-sm font-semibold text-slate-700"
+                  >ステータス</label
+                >
+                <select
+                  id="status"
+                  class="mt-2 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                >
+                  <option value="Done">完了 (Done)</option>
+                  <option value="In Progress" selected>
+                    進行中 (In Progress)
+                  </option>
+                  <option value="To Do">未着手 (To Do)</option>
+                </select>
+              </div>
+
+              <!-- 担当者 -->
+              <div>
+                <label
+                  for="assignee"
+                  class="block text-sm font-semibold text-slate-700"
+                  >担当者</label
+                >
+                <input
+                  type="text"
+                  id="assignee"
+                  required
+                  class="mt-2 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  placeholder="担当者名"
+                />
+              </div>
+            </div>
+
+            <!-- 期限 -->
+            <div>
+              <label
+                for="date"
+                class="block text-sm font-semibold text-slate-700"
+                >期限</label
+              >
+              <input
+                type="date"
+                id="date"
+                required
+                class="mt-2 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              />
+            </div>
+          </div>
+
+          <!-- アクションボタン -->
+          <div
+            class="mt-10 flex items-center justify-end gap-x-4 border-t border-slate-100 pt-8"
+          >
+            <button
+              type="button"
+              onclick="history.back()"
+              class="text-sm font-semibold text-slate-600 hover:text-slate-900"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              class="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all active:scale-95"
+            >
+              タスクを作成する
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import "./assets/styles/style.css";
+
+      const STORAGE_KEY = "manage_mock_data";
+
+      // --- ローディング解除処理 ---
+      function finishLoading() {
+        document.body.classList.add("is-loaded");
+        const content = document.getElementById("main-content");
+        if (content) content.setAttribute("aria-hidden", "false");
+      }
+
+      // --- フォーム送信処理 ---
+      document.getElementById("createForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const rawData = localStorage.getItem(STORAGE_KEY);
+        const allData = rawData ? JSON.parse(rawData) : [];
+
+        const nextIdNum =
+          allData.length > 0
+            ? Math.max(
+                ...allData.map((d) => parseInt(d.id.replace(/\D/g, "")) || 0),
+              ) + 1
+            : 1001;
+        const nextId = `T-${nextIdNum}`;
+
+        const newItem = {
+          id: nextId,
+          name: document.getElementById("name").value,
+          status: document.getElementById("status").value,
+          assignee: document.getElementById("assignee").value,
+          date: document.getElementById("date").value,
+          updatedAt: new Date().toISOString(),
+        };
+
+        allData.unshift(newItem);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+
+        alert(`タスク ${nextId} を作成しました。`);
+        window.location.href = "dashboard.html";
+      });
+
+      // --- 初期化 ---
+      function init() {
+        // デフォルトの日付をセット
+        document.getElementById("date").valueAsDate = new Date();
+
+        // 読み込み完了イベントの待機
+        window.addEventListener("load", finishLoading, { once: true });
+        if (document.readyState === "complete") finishLoading();
+
+        // 安全策（最大2秒で表示）
+        setTimeout(finishLoading, 2000);
+      }
+
+      init();
+    </script>
+  </body>
+</html>

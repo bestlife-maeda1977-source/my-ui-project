@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="ja" class="h-full bg-gray-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ダッシュボード | データチェック管理</title>
+    <style>
+      #main-content {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s ease;
+      }
+      .is-loaded #main-content {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+      .is-loaded #loading-overlay {
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      #loading-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: #f9fafb !important;
+        z-index: 9999 !important;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+      .fallback-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #4f46e5;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body class="h-full overflow-x-hidden">
+    <div id="loading-overlay" aria-label="読み込み中">
+      <div class="flex flex-col items-center">
+        <div class="fallback-spinner h-12 w-12 border-indigo-600"></div>
+        <p class="mt-4 text-sm font-medium text-gray-600 tracking-wider">
+          読み込み中...
+        </p>
+      </div>
+    </div>
+
+    <div id="main-content" class="min-h-full" aria-hidden="true">
+      <nav class="bg-indigo-600 shadow-sm">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="flex h-16 justify-between items-center">
+            <span class="text-white font-bold text-lg tracking-wider"
+              >DATA CHECKER</span
+            >
+            <div class="flex items-center space-x-4">
+              <span class="text-indigo-100 text-sm">管理者 太郎 様</span>
+              <a
+                href="logout.html"
+                class="text-xs bg-indigo-500 hover:bg-indigo-400 text-white py-1 px-3 rounded"
+                >ログアウト</a
+              >
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main class="py-10">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="md:flex md:items-center md:justify-between mb-8 gap-y-4">
+            <div class="min-w-0 flex-1">
+              <h1 class="text-2xl font-bold text-gray-900">
+                データチェック一覧
+              </h1>
+              <p class="mt-2 text-sm text-gray-500">
+                ステータスを確認・管理します。
+              </p>
+            </div>
+            <div class="flex shrink-0">
+              <a
+                href="./create.html"
+                class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all"
+              >
+                <span class="mr-2">+</span> 新規追加
+              </a>
+            </div>
+          </div>
+
+          <!-- 検索窓エリア -->
+          <div class="mb-6">
+            <div class="relative max-w-md">
+              <div
+                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+              >
+                <svg
+                  class="h-5 w-5 text-gray-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="search-input"
+                class="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 shadow-sm"
+                placeholder="プロジェクト名・IDで検索..."
+              />
+            </div>
+          </div>
+
+          <!-- テーブルコンテナ -->
+          <div
+            class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm bg-white"
+          >
+            <table class="min-w-full divide-y divide-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                  >
+                    ID
+                  </th>
+                  <th
+                    class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                  >
+                    プロジェクト名
+                  </th>
+                  <th
+                    class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                  >
+                    ステータス
+                  </th>
+                  <th class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span class="sr-only">詳細</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                id="data-list-container"
+                class="divide-y divide-gray-200"
+              ></tbody>
+            </table>
+
+            <div
+              class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
+            >
+              <div class="flex flex-1 justify-between sm:hidden">
+                <button
+                  id="prev-mobile"
+                  class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-30"
+                >
+                  前へ
+                </button>
+                <button
+                  id="next-mobile"
+                  class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-30"
+                >
+                  次へ
+                </button>
+              </div>
+              <div
+                class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p class="text-sm text-gray-700">
+                    全 <span id="total-count" class="font-medium">0</span> 件中
+                    <span id="page-range" class="font-medium">0-0</span>
+                    件を表示
+                  </p>
+                </div>
+                <nav
+                  class="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                  aria-label="Pagination"
+                >
+                  <button
+                    id="prev-btn"
+                    class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-gray-400 hover:bg-gray-50 focus:z-20 disabled:opacity-30"
+                  >
+                    前へ &lt;
+                  </button>
+                  <button
+                    id="next-btn"
+                    class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-gray-400 hover:bg-gray-50 focus:z-20 disabled:opacity-30"
+                  >
+                    次へ &gt;
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module">
+      import "/src/assets/styles/style.css";
+      import { mockData, STATUS_CONFIG } from "/src/assets/scripts/js/data.js";
+
+      let currentPage = 1;
+      const itemsPerPage = 15;
+      // 1. 表示用のデータ（検索結果）を保持する変数を追加
+      let filteredData = [...mockData];
+
+      const container = document.getElementById("data-list-container");
+      const mainContent = document.getElementById("main-content");
+      const searchInput = document.getElementById("search-input"); // 検索窓を取得
+
+      function finishLoading() {
+        document.body.classList.add("is-loaded");
+        if (mainContent) mainContent.setAttribute("aria-hidden", "false");
+      }
+
+      function updateDisplay() {
+        if (!container || !filteredData) return; // mockDataではなくfilteredDataを参照
+
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        // 2. 表示するデータを filteredData から切り出す
+        const pagedData = filteredData.slice(start, end);
+
+        if (pagedData.length === 0) {
+          container.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-sm text-gray-500">該当するデータが見つかりません</td></tr>`;
+        } else {
+          container.innerHTML = pagedData
+            .map((item) => {
+              const status = STATUS_CONFIG[item.status] || {
+                text: item.status,
+                class: "bg-gray-100",
+              };
+              return `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="whitespace-nowrap py-4 pl-6 text-sm font-mono text-gray-500">${item.id}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">${item.name}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm">
+              <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${status.class}">${status.text}</span>
+            </td>
+            <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
+              <a href="./detail.html?id=${item.id}" class="inline-flex items-center rounded-md bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 shadow-sm hover:bg-indigo-100 transition-all">詳細</a>
+            </td>
+          </tr>`;
+            })
+            .join("");
+        }
+
+        // 3. ページネーション情報の表示も filteredData の件数に合わせる
+        document.getElementById("total-count").textContent =
+          filteredData.length;
+        const rangeStart = filteredData.length > 0 ? start + 1 : 0;
+        document.getElementById("page-range").textContent =
+          `${rangeStart}-${Math.min(end, filteredData.length)}`;
+
+        const isFirstPage = currentPage === 1;
+        const isLastPage =
+          end >= filteredData.length || filteredData.length === 0;
+
+        ["prev-btn", "prev-mobile"].forEach(
+          (id) => (document.getElementById(id).disabled = isFirstPage),
+        );
+        ["next-btn", "next-mobile"].forEach(
+          (id) => (document.getElementById(id).disabled = isLastPage),
+        );
+      }
+
+      // 4. 検索機能のセットアップを追加
+      function setupSearch() {
+        if (!searchInput) return;
+
+        searchInput.addEventListener("input", (e) => {
+          const query = e.target.value.toLowerCase().trim();
+
+          // フィルタリング実行
+          filteredData = mockData.filter(
+            (item) =>
+              item.name.toLowerCase().includes(query) ||
+              item.id.toString().toLowerCase().includes(query),
+          );
+
+          currentPage = 1; // 検索時は1ページ目に戻す
+          updateDisplay();
+        });
+      }
+
+      function setupPagination() {
+        const handlePrev = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            updateDisplay();
+          }
+        };
+        const handleNext = () => {
+          if (currentPage * itemsPerPage < filteredData.length) {
+            currentPage++;
+            updateDisplay();
+          }
+        };
+
+        document.getElementById("prev-btn").onclick = handlePrev;
+        document.getElementById("prev-mobile").onclick = handlePrev;
+        document.getElementById("next-btn").onclick = handleNext;
+        document.getElementById("next-mobile").onclick = handleNext;
+      }
+
+      function init() {
+        try {
+          setupSearch(); // 検索イベントを登録
+          setupPagination();
+          updateDisplay();
+        } catch (e) {
+          console.error(e);
+        } finally {
+          window.addEventListener("load", finishLoading, { once: true });
+          if (document.readyState === "complete") finishLoading();
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>

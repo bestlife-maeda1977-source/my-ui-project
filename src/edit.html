@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ja" class="h-full bg-gray-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>データ編集 | データチェック管理</title>
+    <link rel="stylesheet" href="/src/assets/styles/style.css" />
+  </head>
+  <body class="h-full">
+    <div class="min-h-full">
+      <!-- ナビゲーション -->
+      <nav class="bg-indigo-600 shadow-sm">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="flex h-16 justify-between items-center">
+            <div class="flex items-center">
+              <a
+                id="header-back-link"
+                href="/src/dashboard.html"
+                class="text-indigo-100 hover:text-white transition flex items-center text-sm"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                詳細に戻る
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main class="py-10">
+        <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div id="loading-state" class="text-center py-20 text-gray-500">
+            データを読み込み中...
+          </div>
+
+          <div id="edit-content" class="hidden">
+            <div class="mb-8">
+              <h1 class="text-2xl font-bold leading-7 text-gray-900">
+                データの編集: <span id="display-id-header">#--</span>
+              </h1>
+              <p class="mt-1 text-sm text-gray-500">
+                必要な情報を修正し、保存ボタンを押してください。
+              </p>
+            </div>
+
+            <form id="edit-main-form" class="space-y-6">
+              <div class="bg-white shadow sm:rounded-lg">
+                <div class="px-4 py-6 sm:p-8">
+                  <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <!-- データ名 -->
+                    <div class="sm:col-span-4">
+                      <label
+                        for="data-name"
+                        class="block text-sm font-medium leading-6 text-gray-900"
+                        >データ名</label
+                      >
+                      <div class="mt-2">
+                        <input
+                          type="text"
+                          name="data-name"
+                          id="data-name"
+                          required
+                          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm px-3"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- ステータス選択 -->
+                    <div class="sm:col-span-3">
+                      <label
+                        for="status"
+                        class="block text-sm font-medium leading-6 text-gray-900"
+                        >ステータス</label
+                      >
+                      <div class="mt-2">
+                        <select
+                          id="status"
+                          name="status"
+                          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm px-3"
+                        >
+                          <option value="processing">処理中</option>
+                          <option value="completed">完了</option>
+                          <option value="pending">確認待ち</option>
+                          <option value="error">エラー</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- 担当者 -->
+                    <div class="sm:col-span-3">
+                      <label
+                        for="assignee"
+                        class="block text-sm font-medium leading-6 text-gray-900"
+                        >担当者 / チーム</label
+                      >
+                      <div class="mt-2">
+                        <select
+                          name="assignee"
+                          id="assignee"
+                          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm px-3"
+                        ></select>
+                      </div>
+                    </div>
+
+                    <!-- 詳細説明 -->
+                    <div class="col-span-full">
+                      <label
+                        for="description"
+                        class="block text-sm font-medium leading-6 text-gray-900"
+                        >詳細説明</label
+                      >
+                      <div class="mt-2">
+                        <textarea
+                          id="description"
+                          name="description"
+                          rows="4"
+                          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm px-3"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="flex items-center justify-between gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8 bg-gray-50 rounded-b-lg"
+                >
+                  <button
+                    type="button"
+                    id="delete-btn"
+                    class="text-sm font-semibold leading-6 text-red-600 hover:text-red-500"
+                  >
+                    データを削除する
+                  </button>
+                  <div class="flex items-center gap-x-4">
+                    <a
+                      id="cancel-link"
+                      href="#"
+                      class="text-sm font-semibold leading-6 text-gray-900"
+                      >キャンセル</a
+                    >
+                    <button
+                      type="submit"
+                      id="submit-btn"
+                      class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition disabled:opacity-50"
+                    >
+                      変更を保存
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+
+      <!-- 削除確認モーダル -->
+      <div
+        id="delete-modal"
+        class="relative z-50 hidden"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          id="modal-overlay"
+        ></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+          <div
+            class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+          >
+            <div
+              class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                  <div
+                    class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+                  >
+                    <svg
+                      class="h-6 w-6 text-red-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.34c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <h3
+                      class="text-base font-semibold leading-6 text-gray-900"
+                      id="modal-title"
+                    >
+                      データの削除
+                    </h3>
+                    <div class="mt-2">
+                      <p class="text-sm text-gray-500">
+                        本当にこのデータを削除しますか？この操作は取り消すことができません。
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6"
+              >
+                <button
+                  type="button"
+                  id="modal-delete-confirm-btn"
+                  class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto transition"
+                >
+                  削除する
+                </button>
+                <button
+                  type="button"
+                  id="modal-cancel-btn"
+                  class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition"
+                >
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { mockData, ASSIGNEE_LIST } from "/src/assets/scripts/js/data.js";
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+        const item = mockData.find((d) => d.id === id);
+
+        // モーダル要素をここで取得しておく（Escキー処理でも使うため）
+        const deleteModal = document.getElementById("delete-modal");
+
+        // Escキーでモーダルを閉じる
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && !deleteModal.classList.contains("hidden")) {
+            deleteModal.classList.add("hidden");
+          }
+        });
+
+        if (item) {
+          // --- セレクトボックス生成 ---
+          const assigneeSelect = document.getElementById("assignee");
+          assigneeSelect.innerHTML =
+            '<option value="">選択してください</option>';
+          ASSIGNEE_LIST.forEach((name) => {
+            const option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            assigneeSelect.appendChild(option);
+          });
+
+          // --- データの流し込み ---
+          document.getElementById("display-id-header").textContent =
+            `#${item.id}`;
+          document.getElementById("data-name").value = item.name;
+          document.getElementById("status").value = item.status;
+          assigneeSelect.value = item.assignee;
+          document.getElementById("description").value = item.description;
+
+          // 表示の切り替え
+          document.getElementById("loading-state").classList.add("hidden");
+          document.getElementById("edit-content").classList.remove("hidden");
+
+          // リンク設定
+          const detailUrl = `/src/dashboard.html?id=${item.id}`;
+          document.getElementById("cancel-link").href = detailUrl;
+          document.getElementById("header-back-link").href = detailUrl;
+
+          // --- 保存処理 ---
+          const editForm = document.getElementById("edit-main-form");
+          editForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById("submit-btn");
+            submitBtn.disabled = true;
+            submitBtn.textContent = "保存中...";
+
+            document.getElementById("edit-content").classList.add("hidden");
+            const loadingState = document.getElementById("loading-state");
+            loadingState.classList.remove("hidden");
+            loadingState.textContent = "変更を保存中...";
+
+            // 擬似保存
+            setTimeout(() => {
+              window.location.href = detailUrl;
+            }, 1000);
+          });
+
+          // --- 削除モーダル制御 ---
+          const deleteBtn = document.getElementById("delete-btn");
+          const cancelModalBtn = document.getElementById("modal-cancel-btn");
+          const confirmDeleteBtn = document.getElementById(
+            "modal-delete-confirm-btn",
+          );
+          const modalOverlay = document.getElementById("modal-overlay");
+
+          deleteBtn.addEventListener("click", () =>
+            deleteModal.classList.remove("hidden"),
+          );
+          cancelModalBtn.addEventListener("click", () =>
+            deleteModal.classList.add("hidden"),
+          );
+          modalOverlay.addEventListener("click", () =>
+            deleteModal.classList.add("hidden"),
+          );
+
+          confirmDeleteBtn.addEventListener("click", () => {
+            console.log(`ID: ${item.id} のデータを削除しました`);
+            window.location.href = "/src/dashboard.html";
+          });
+        } else {
+          // データが見つからない場合
+          document.getElementById("loading-state").textContent =
+            "データが見つかりませんでした。";
+        }
+      });
+    </script>
+  </body>
+</html>

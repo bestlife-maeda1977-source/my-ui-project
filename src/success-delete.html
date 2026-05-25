@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja" class="h-full bg-gray-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>削除完了 | データチェック管理</title>
+    <link rel="stylesheet" href="/src/assets/styles/style.css" />
+  </head>
+  <body class="h-full">
+    <div
+      class="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+    >
+      <!-- 削除を強調するため、上部に赤いラインを入れたカード -->
+      <div
+        class="max-w-md w-full text-center bg-white p-8 shadow sm:rounded-xl border-t-8 border-red-500"
+      >
+        <!-- ゴミ箱アイコン -->
+        <div
+          class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50 mb-6"
+        >
+          <svg
+            class="h-10 w-10 text-red-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+        </div>
+
+        <!-- メッセージ -->
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+          削除が完了しました
+        </h2>
+        <p class="mt-4 text-sm text-gray-500 leading-relaxed">
+          対象のデータ（ID:
+          <span id="deleted-id" class="font-bold">#---</span
+          >）はシステムから完全に削除されました。<br />
+          この操作は取り消すことができません。
+        </p>
+        <!-- アクションボタン -->
+        <div class="mt-10">
+          <a
+            href="/src/dashboard.html"
+            class="flex w-full justify-center rounded-md bg-gray-900 py-3 px-4 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 transition-all"
+          >
+            ダッシュボードへ戻る
+          </a>
+        </div>
+
+        <!-- 戻り先リンクの補足 -->
+        <div class="mt-6">
+          <p class="text-xs text-gray-400">
+            誤って削除した場合は、システム管理者へログの復旧を依頼してください。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+        if (id) {
+          document.getElementById("deleted-id").textContent = `#${id}`;
+        }
+      });
+
+      // DOMContentLoadedで実行
+      window.addEventListener("DOMContentLoaded", () => {
+        // URLの「?id=xxx」を取得
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+
+        const displayElement = document.getElementById("deleted-id");
+
+        if (id && displayElement) {
+          displayElement.textContent = `#${id}`;
+          console.log("表示したID:", id); // デバッグ用
+        } else {
+          console.warn(
+            "IDが見つからないか、要素が存在しません。URL:",
+            window.location.href,
+          );
+        }
+      });
+    </script>
+  </body>
+</html>

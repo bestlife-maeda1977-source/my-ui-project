@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ja" class="h-full bg-gray-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ログイン | 社内データ管理システム</title>
+    <link rel="stylesheet" href="/src/assets/styles/style.css" />
+  </head>
+  <body class="h-full">
+    <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <!-- ヘッダー・ロゴ部分 -->
+      <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <!-- 企業ロゴ（ダミー） -->
+        <div
+          class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-indigo-600 text-white mb-6"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-10 w-10"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+          データ管理システムにログイン
+        </h2>
+      </div>
+
+      <!-- ログインフォームカード -->
+      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form class="space-y-6" action="#" method="POST">
+            <!-- ユーザーID -->
+            <div>
+              <label
+                for="user-id"
+                class="block text-sm font-medium text-gray-700"
+              >
+                ユーザーID
+              </label>
+              <div class="mt-1">
+                <input
+                  id="user-id"
+                  name="user-id"
+                  type="text"
+                  required
+                  class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                  placeholder="Example: 123456"
+                />
+              </div>
+            </div>
+
+            <!-- パスワード -->
+            <div>
+              <label
+                for="password"
+                class="block text-sm font-medium text-gray-700"
+              >
+                パスワード
+              </label>
+              <div class="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <!-- ログインボタン -->
+            <div>
+              <button
+                type="submit"
+                class="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+              >
+                ログイン
+              </button>
+            </div>
+          </form>
+
+          <!-- 補助リンク（必要に応じて） -->
+          <div class="mt-6 text-center">
+            <a href="#" class="text-xs text-gray-500 hover:text-indigo-600">
+              パスワードを忘れた場合は管理者に問い合わせてください
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
