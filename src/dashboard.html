@@ -87,10 +87,17 @@
                 データチェック一覧
               </h1>
               <p class="mt-2 text-sm text-gray-500">
-                ステータスを確認・管理します。
+                ステータスを確認・管理します。2つのデータを選択して比較できます。
               </p>
             </div>
-            <div class="flex shrink-0">
+            <div class="flex shrink-0 space-x-3">
+              <button
+                id="compare-btn"
+                disabled
+                class="inline-flex items-center rounded-md bg-gray-300 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all cursor-not-allowed"
+              >
+                比較する (<span id="compare-count">0</span>/2)
+              </button>
               <a
                 href="./create.html"
                 class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all"
@@ -100,7 +107,6 @@
             </div>
           </div>
 
-          <!-- 検索窓エリア -->
           <div class="mb-6">
             <div class="relative max-w-md">
               <div
@@ -128,7 +134,6 @@
             </div>
           </div>
 
-          <!-- テーブルコンテナ -->
           <div
             class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm bg-white"
           >
@@ -136,7 +141,12 @@
               <thead class="bg-gray-50">
                 <tr>
                   <th
-                    class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                    class="w-auto whitespace-nowrap px-4 py-3.5 text-center text-sm font-semibold text-gray-900"
+                  >
+                    選択
+                  </th>
+                  <th
+                    class="py-3.5 px-4 text-center text-sm font-semibold text-gray-900"
                   >
                     ID
                   </th>
@@ -146,7 +156,7 @@
                     プロジェクト名
                   </th>
                   <th
-                    class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900"
                   >
                     ステータス
                   </th>
@@ -218,12 +228,16 @@
 
       let currentPage = 1;
       const itemsPerPage = 15;
-      // 1. 表示用のデータ（検索結果）を保持する変数を追加
       let filteredData = [...mockData];
+
+      // 選択されたデータのIDを管理する配列（最大2つ）
+      let selectedIds = [];
 
       const container = document.getElementById("data-list-container");
       const mainContent = document.getElementById("main-content");
-      const searchInput = document.getElementById("search-input"); // 検索窓を取得
+      const searchInput = document.getElementById("search-input");
+      const compareBtn = document.getElementById("compare-btn");
+      const compareCount = document.getElementById("compare-count");
 
       function finishLoading() {
         document.body.classList.add("is-loaded");
@@ -231,15 +245,14 @@
       }
 
       function updateDisplay() {
-        if (!container || !filteredData) return; // mockDataではなくfilteredDataを参照
+        if (!container || !filteredData) return;
 
         const start = (currentPage - 1) * itemsPerPage;
         const end = start + itemsPerPage;
-        // 2. 表示するデータを filteredData から切り出す
         const pagedData = filteredData.slice(start, end);
 
         if (pagedData.length === 0) {
-          container.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-sm text-gray-500">該当するデータが見つかりません</td></tr>`;
+          container.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-sm text-gray-500">該当するデータが見つかりません</td></tr>`;
         } else {
           container.innerHTML = pagedData
             .map((item) => {
@@ -247,11 +260,24 @@
                 text: item.status,
                 class: "bg-gray-100",
               };
+              // 選択状態の復元
+              const isChecked = selectedIds.includes(String(item.id))
+                ? "checked"
+                : "";
+
               return `
           <tr class="hover:bg-gray-50 transition-colors">
-            <td class="whitespace-nowrap py-4 pl-6 text-sm font-mono text-gray-500">${item.id}</td>
+            <td class="whitespace-nowrap px-4 py-4 text-center text-sm text-gray-500">
+              <input 
+                type="checkbox" 
+                value="${item.id}" 
+                class="data-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
+                ${isChecked}
+              >
+            </td>
+            <td class="whitespace-nowrap py-4 px-4 text-center text-sm font-mono text-gray-500">${item.id}</td>
             <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">${item.name}</td>
-            <td class="whitespace-nowrap px-3 py-4 text-sm">
+            <td class="whitespace-nowrap px-3 py-4 text-center text-sm">
               <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${status.class}">${status.text}</span>
             </td>
             <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
@@ -260,9 +286,11 @@
           </tr>`;
             })
             .join("");
+
+          // 新しく生成されたチェックボックスにイベントを登録
+          setupCheckboxEvents();
         }
 
-        // 3. ページネーション情報の表示も filteredData の件数に合わせる
         document.getElementById("total-count").textContent =
           filteredData.length;
         const rangeStart = filteredData.length > 0 ? start + 1 : 0;
@@ -279,23 +307,78 @@
         ["next-btn", "next-mobile"].forEach(
           (id) => (document.getElementById(id).disabled = isLastPage),
         );
+
+        updateCompareButtonState();
       }
 
-      // 4. 検索機能のセットアップを追加
+      // チェックボックスの変更イベント
+      function setupCheckboxEvents() {
+        const checkboxes = container.querySelectorAll(".data-checkbox");
+        checkboxes.forEach((cb) => {
+          cb.addEventListener("change", (e) => {
+            const id = e.target.value;
+            if (e.target.checked) {
+              if (selectedIds.length >= 2) {
+                alert("比較できるデータは最大2つまでです。");
+                e.target.checked = false;
+                return;
+              }
+              if (!selectedIds.includes(id)) {
+                selectedIds.push(id);
+              }
+            } else {
+              selectedIds = selectedIds.filter(
+                (selectedId) => selectedId !== id,
+              );
+            }
+            updateCompareButtonState();
+          });
+        });
+      }
+
+      // 比較ボタンのUI状態と件数を更新
+      function updateCompareButtonState() {
+        if (!compareBtn || !compareCount) return;
+
+        const count = selectedIds.length;
+        compareCount.textContent = count;
+
+        if (count === 2) {
+          compareBtn.removeAttribute("disabled");
+          compareBtn.className =
+            "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all cursor-pointer";
+        } else {
+          compareBtn.setAttribute("disabled", "true");
+          compareBtn.className =
+            "inline-flex items-center rounded-md bg-gray-300 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all cursor-not-allowed";
+        }
+      }
+
+      // 比較ボタンクリック時の遷移処理
+      function setupCompareButton() {
+        if (!compareBtn) return;
+        compareBtn.addEventListener("click", () => {
+          if (selectedIds.length === 2) {
+            // URLクエリパラメータの組み立て (?id1=XXX&id2=YYY)
+            const url = `./detail-2column.html?id1=${selectedIds[0]}&id2=${selectedIds[1]}`;
+            window.location.href = url;
+          }
+        });
+      }
+
       function setupSearch() {
         if (!searchInput) return;
 
         searchInput.addEventListener("input", (e) => {
           const query = e.target.value.toLowerCase().trim();
 
-          // フィルタリング実行
           filteredData = mockData.filter(
             (item) =>
               item.name.toLowerCase().includes(query) ||
               item.id.toString().toLowerCase().includes(query),
           );
 
-          currentPage = 1; // 検索時は1ページ目に戻す
+          currentPage = 1;
           updateDisplay();
         });
       }
@@ -322,8 +405,9 @@
 
       function init() {
         try {
-          setupSearch(); // 検索イベントを登録
+          setupSearch();
           setupPagination();
+          setupCompareButton(); // 比較ボタンのイベント登録
           updateDisplay();
         } catch (e) {
           console.error(e);
