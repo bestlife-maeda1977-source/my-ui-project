@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>新規タスク作成 - Task Manager</title>
+    <title>新規データ作成 - Task Manager</title>
     <style>
       /* 1. 読み込み完了前のメインコンテンツを隠す */
       #main-content {
@@ -72,7 +72,7 @@
       <!-- ヘッダー -->
       <div class="mb-8 flex items-center justify-between">
         <h1 class="text-2xl font-bold tracking-tight text-slate-800">
-          新規タスク追加
+          新規データ追加
         </h1>
         <a
           href="dashboard.html"
@@ -88,12 +88,12 @@
       >
         <form id="createForm" class="p-8">
           <div class="space-y-6">
-            <!-- タスク名 -->
+            <!-- データ名 -->
             <div>
               <label
                 for="name"
                 class="block text-sm font-semibold text-slate-700"
-                >タスク名</label
+                >データ名</label
               >
               <input
                 type="text"
@@ -172,7 +172,7 @@
               type="submit"
               class="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all active:scale-95"
             >
-              タスクを作成する
+              データを作成する
             </button>
           </div>
         </form>
@@ -217,7 +217,7 @@
         allData.unshift(newItem);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
 
-        alert(`タスク ${nextId} を作成しました。`);
+        alert(`データ ${nextId} を作成しました。`);
         window.location.href = "dashboard.html";
       });
 
