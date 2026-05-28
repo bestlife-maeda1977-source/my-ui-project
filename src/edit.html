@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>データ編集 | データチェック管理</title>
-    <link rel="stylesheet" href="/src/assets/styles/style.css" />
   </head>
   <body class="h-full">
     <div class="min-h-full">
@@ -14,7 +13,7 @@
             <div class="flex items-center">
               <a
                 id="header-back-link"
-                href="/src/dashboard.html"
+                href="./dashboard.html"
                 class="text-indigo-100 hover:text-white transition flex items-center text-sm"
               >
                 <svg
@@ -232,17 +231,19 @@
     </div>
 
     <script type="module">
-      // STATUS_CONFIG を追加インポートしました
+      import "/src/assets/styles/style.css";
       import {
         mockData,
         ASSIGNEE_LIST,
         STATUS_CONFIG,
       } from "/src/assets/scripts/js/data.js";
 
-      window.addEventListener("DOMContentLoaded", () => {
+      function startEdit() {
         const params = new URLSearchParams(window.location.search);
         const id = params.get("id");
-        const item = mockData.find((d) => d.id === id);
+
+        // 修正点：型エラーを避けるため String(d.id) に変換して厳密比較する
+        const item = mockData.find((d) => String(d.id) === id);
 
         const deleteModal = document.getElementById("delete-modal");
 
@@ -253,18 +254,16 @@
         });
 
         if (item) {
-          // --- ステータスセレクトボックスを STATUS_CONFIG から動的生成 ---
           const statusSelect = document.getElementById("status");
-          statusSelect.innerHTML = ""; // 既存の中身をクリア
+          statusSelect.innerHTML = "";
 
           Object.keys(STATUS_CONFIG).forEach((key) => {
             const option = document.createElement("option");
             option.value = key;
-            option.textContent = STATUS_CONFIG[key].text; // 日本語のテキスト（「確認待ち」など）をセット
+            option.textContent = STATUS_CONFIG[key].text;
             statusSelect.appendChild(option);
           });
 
-          // --- 担当者セレクトボックス生成 ---
           const assigneeSelect = document.getElementById("assignee");
           assigneeSelect.innerHTML =
             '<option value="">選択してください</option>';
@@ -275,27 +274,26 @@
             assigneeSelect.appendChild(option);
           });
 
-          // --- データの流し込み ---
           document.getElementById("display-id-header").textContent =
             `#${item.id}`;
           document.getElementById("data-name").value = item.name;
-          statusSelect.value = item.status; // 動的生成したセレクトボックスに値をセット
+          statusSelect.value = item.status;
           assigneeSelect.value = item.assignee;
           document.getElementById("description").value = item.description;
 
-          // 表示の切り替え
           document.getElementById("loading-state").classList.add("hidden");
           document.getElementById("edit-content").classList.remove("hidden");
 
-          // リンク設定
-          const detailUrl = `/src/dashboard.html?id=${item.id}`;
+          // 修正点：詳細画面の正しいURLパターンにあわせる（例: detail.html?id=xxx）
+          const detailUrl = `./detail.html?id=${item.id}`;
           document.getElementById("cancel-link").href = detailUrl;
           document.getElementById("header-back-link").href = detailUrl;
 
-          // --- 保存処理 ---
           const editForm = document.getElementById("edit-main-form");
           editForm.addEventListener("submit", (e) => {
             e.preventDefault();
+
+            // 1. ボタンとローディングの状態を変更
             const submitBtn = document.getElementById("submit-btn");
             submitBtn.disabled = true;
             submitBtn.textContent = "保存中...";
@@ -305,12 +303,44 @@
             loadingState.classList.remove("hidden");
             loadingState.textContent = "変更を保存中...";
 
+            // 2. フォームの入力値を取得
+            const updatedName = document.getElementById("data-name").value;
+            const updatedStatus = document.getElementById("status").value;
+            const updatedAssignee = document.getElementById("assignee").value;
+            const updatedDescription =
+              document.getElementById("description").value;
+            const nowTime = new Date().toLocaleString("ja-JP");
+
+            // 3. 既存のLocalStorageデータ（または初期データ）を読み込む
+            const storedData =
+              JSON.parse(localStorage.getItem("manage_mock_data")) || mockData;
+
+            // 4. 対象のデータを更新する
+            const updatedAllData = storedData.map((d) =>
+              String(d.id) === id
+                ? {
+                    ...d,
+                    name: updatedName,
+                    status: updatedStatus,
+                    assignee: updatedAssignee,
+                    description: updatedDescription,
+                    updatedAt: nowTime,
+                  }
+                : d,
+            );
+
+            // 5. LocalStorageに保存
+            localStorage.setItem(
+              "manage_mock_data",
+              JSON.stringify(updatedAllData),
+            );
+
+            // 6. トースト通知が表示されるよう、URLパラメータに updated=true を付与してリダイレクト
             setTimeout(() => {
-              window.location.href = detailUrl;
+              window.location.href = `${detailUrl}&updated=true`;
             }, 1000);
           });
 
-          // --- 削除モーダル制御 ---
           const deleteBtn = document.getElementById("delete-btn");
           const cancelModalBtn = document.getElementById("modal-cancel-btn");
           const confirmDeleteBtn = document.getElementById(
@@ -343,14 +373,24 @@
             `;
 
             setTimeout(() => {
-              window.location.href = "/src/dashboard.html";
-            }, 3600);
+              window.location.href = "./dashboard.html";
+            }, 2000);
           });
         } else {
           document.getElementById("loading-state").textContent =
             "データが見つかりませんでした。";
         }
-      });
+      }
+
+      // DOM読み込み完了タイミングの安全な制御
+      if (
+        document.readyState === "complete" ||
+        document.readyState === "interactive"
+      ) {
+        startEdit();
+      } else {
+        window.addEventListener("DOMContentLoaded", startEdit, { once: true });
+      }
     </script>
   </body>
 </html>

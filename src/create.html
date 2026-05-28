@@ -53,7 +53,6 @@
     </style>
   </head>
   <body class="h-full text-slate-900 antialiased">
-    <!-- ローディングオーバーレイ -->
     <div id="loading-overlay" aria-label="読み込み中">
       <div class="flex flex-col items-center">
         <div class="fallback-spinner"></div>
@@ -63,13 +62,11 @@
       </div>
     </div>
 
-    <!-- メインコンテンツ -->
     <div
       id="main-content"
       class="mx-auto max-w-2xl px-4 py-12"
       aria-hidden="true"
     >
-      <!-- ヘッダー -->
       <div class="mb-8 flex items-center justify-between">
         <h1 class="text-2xl font-bold tracking-tight text-slate-800">
           新規データ追加
@@ -82,13 +79,11 @@
         </a>
       </div>
 
-      <!-- フォームカード -->
       <div
         class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200"
       >
         <form id="createForm" class="p-8">
           <div class="space-y-6">
-            <!-- データ名 -->
             <div>
               <label
                 for="name"
@@ -105,7 +100,6 @@
             </div>
 
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <!-- ステータス -->
               <div>
                 <label
                   for="status"
@@ -115,33 +109,23 @@
                 <select
                   id="status"
                   class="mt-2 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
-                >
-                  <option value="Done">完了 (Done)</option>
-                  <option value="In Progress" selected>
-                    進行中 (In Progress)
-                  </option>
-                  <option value="To Do">未着手 (To Do)</option>
-                </select>
+                ></select>
               </div>
 
-              <!-- 担当者 -->
               <div>
                 <label
                   for="assignee"
                   class="block text-sm font-semibold text-slate-700"
                   >担当者</label
                 >
-                <input
-                  type="text"
+                <select
                   id="assignee"
                   required
                   class="mt-2 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
-                  placeholder="担当者名"
-                />
+                ></select>
               </div>
             </div>
 
-            <!-- 期限 -->
             <div>
               <label
                 for="date"
@@ -157,7 +141,6 @@
             </div>
           </div>
 
-          <!-- アクションボタン -->
           <div
             class="mt-10 flex items-center justify-end gap-x-4 border-t border-slate-100 pt-8"
           >
@@ -181,6 +164,8 @@
 
     <script type="module">
       import "./assets/styles/style.css";
+      // 修正点：STATUS_CONFIGに加えて、初期データ抽出用のmockDataも一緒にインポート
+      import { mockData, STATUS_CONFIG } from "/src/assets/scripts/js/data.js";
 
       const STORAGE_KEY = "manage_mock_data";
 
@@ -223,6 +208,38 @@
 
       // --- 初期化 ---
       function init() {
+        // 最新のステータス一覧から選択肢を動的に生成
+        const statusSelect = document.getElementById("status");
+        if (statusSelect && STATUS_CONFIG) {
+          statusSelect.innerHTML = Object.entries(STATUS_CONFIG)
+            .map(([key, value]) => {
+              const isSelected = key === "In Progress" ? "selected" : "";
+              return `<option value="${key}" ${isSelected}>${value.text}</option>`;
+            })
+            .join("");
+        }
+
+        // 修正点：既存のデータからユニークな担当者一覧を自動で集計・生成
+        const assigneeSelect = document.getElementById("assignee");
+        if (assigneeSelect) {
+          // LocalStorageまたは初期データ（mockData）から最新の配列を参照
+          const currentStoredData =
+            JSON.parse(localStorage.getItem(STORAGE_KEY)) || mockData;
+
+          // 重複しない担当者名を配列として抽出（空文字やundefinedは除外）
+          const assignees = [
+            ...new Set(
+              currentStoredData.map((item) => item.assignee).filter(Boolean),
+            ),
+          ];
+
+          // 選択肢を組み立て（未選択状態を分かりやすくするための初期オプションを追加）
+          assigneeSelect.innerHTML = `
+            <option value="" disabled selected>担当者を選択してください</option>
+            ${assignees.map((name) => `<option value="${name}">${name}</option>`).join("")}
+          `;
+        }
+
         // デフォルトの日付をセット
         document.getElementById("date").valueAsDate = new Date();
 

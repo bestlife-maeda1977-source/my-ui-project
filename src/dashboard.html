@@ -228,9 +228,11 @@
 
       let currentPage = 1;
       const itemsPerPage = 15;
-      let filteredData = [...mockData];
+      // 1. LocalStorageに保存された最新のデータを取得、なければ初期データを使用
+      const currentStoredData =
+        JSON.parse(localStorage.getItem("manage_mock_data")) || mockData;
+      let filteredData = [...currentStoredData];
 
-      // 選択されたデータのIDを管理する配列（最大2つ）
       let selectedIds = [];
 
       const container = document.getElementById("data-list-container");
@@ -260,7 +262,6 @@
                 text: item.status,
                 class: "bg-gray-100",
               };
-              // 選択状態の復元
               const isChecked = selectedIds.includes(String(item.id))
                 ? "checked"
                 : "";
@@ -287,7 +288,6 @@
             })
             .join("");
 
-          // 新しく生成されたチェックボックスにイベントを登録
           setupCheckboxEvents();
         }
 
@@ -311,7 +311,6 @@
         updateCompareButtonState();
       }
 
-      // チェックボックスの変更イベント
       function setupCheckboxEvents() {
         const checkboxes = container.querySelectorAll(".data-checkbox");
         checkboxes.forEach((cb) => {
@@ -336,7 +335,6 @@
         });
       }
 
-      // 比較ボタンのUI状態と件数を更新
       function updateCompareButtonState() {
         if (!compareBtn || !compareCount) return;
 
@@ -354,12 +352,10 @@
         }
       }
 
-      // 比較ボタンクリック時の遷移処理
       function setupCompareButton() {
         if (!compareBtn) return;
         compareBtn.addEventListener("click", () => {
           if (selectedIds.length === 2) {
-            // URLクエリパラメータの組み立て (?id1=XXX&id2=YYY)
             const url = `./detail-2column.html?id1=${selectedIds[0]}&id2=${selectedIds[1]}`;
             window.location.href = url;
           }
@@ -407,13 +403,22 @@
         try {
           setupSearch();
           setupPagination();
-          setupCompareButton(); // 比較ボタンのイベント登録
+          setupCompareButton();
           updateDisplay();
         } catch (e) {
           console.error(e);
         } finally {
-          window.addEventListener("load", finishLoading, { once: true });
-          if (document.readyState === "complete") finishLoading();
+          // 修正点：DOMの状態を確認して、即座にローディングを解除できるように変更
+          if (
+            document.readyState === "complete" ||
+            document.readyState === "interactive"
+          ) {
+            finishLoading();
+          } else {
+            window.addEventListener("DOMContentLoaded", finishLoading, {
+              once: true,
+            });
+          }
         }
       }
 
